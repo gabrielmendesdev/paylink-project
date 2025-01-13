@@ -180,6 +180,19 @@ export default function CreateAccount() {
             />
             <FormField
               control={form.control}
+              name='profession'
+              render={({ field }) => (
+                <FormItem className='col-span-3'>
+                  <FormLabel>Cargo</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Digite seu cargo' type='text' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name='email'
               render={({ field }) => (
                 <FormItem className='col-span-6'>

@@ -1,0 +1,26 @@
+# Ignorar node_modules
+node_modules/
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de ambiente
+.env
+
+# Ignorar a pasta dist (gerada pela compilação)
+dist/
+
+# Ignorar os arquivos de cache do npm
+npm-debug.log*
+
+# Ignorar os arquivos de cache do yarn
+yarn-error.log*
+
+# Ignorar o diretório do sistema operacional no Mac (se estiver no macOS)
+.DS_Store
+
+# Ignorar arquivos de configuração do VSCode
+.vscode/
+
+# Ignorar arquivos do editor Sublime Text
+*.sublime-workspace
