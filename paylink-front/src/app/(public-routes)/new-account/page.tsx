@@ -17,9 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Spinner } from '@/components/ui/spinner'
+import { CreateAccount } from '@/service/account/AccountModel'
+import { AccountService } from '@/service/account/AccountService'
 import { createAccountSchema } from '@/utils/schema-form-rules'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn, getSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
@@ -41,7 +45,11 @@ const months = [
   { value: '12', label: 'Dezembro' },
 ]
 
-export default function CreateAccount() {
+export default function CreateAccountPage() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const router = useRouter()
+
   const form = useForm<CreateAccountForm>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
@@ -57,35 +65,39 @@ export default function CreateAccount() {
     },
   })
 
-  const onSubmit = async (data: CreateAccountForm) => {
-    const { password, email } = data
-    toast(
-      <div>
-        <p>🦄 So easy</p>
-        <p>usuário: {email}</p>
-        <p>senha: {password}</p>
-        <p>
-          (Utilize o react-toastfy para exibir notificações para o usuario, não deixe o usuário
-          realizar uma ação sem aparecer nada, obrigado!)
-        </p>
-      </div>
-    )
+  const onCreateAccount = async (data: CreateAccountForm) => {
+    const { name, surname, dateBirth, profession, email, password } = data
 
-    const result = await signIn('credentials', {
+    const formattedDateBirth = `${dateBirth.day.padStart(2, '0')}-${dateBirth.month.padStart(2, '0')}-${dateBirth.year}`
+
+    console.log(formattedDateBirth)
+
+    const account: CreateAccount = {
+      name,
+      surname,
+      dateBirth: formattedDateBirth,
+      profession,
       email,
       password,
-      redirect: false,
-    })
-
-    if (result?.error) {
-      return
     }
-    const session = await getSession()
-    toast.success('Login efetuado com sucesso! :)', {
-      position: 'bottom-center',
-    })
-    console.log(session)
+    createAccount(account)
   }
+
+  const createAccount = async (account: CreateAccount): Promise<void> => {
+    setIsLoading(true)
+    try {
+      await AccountService.CreateAccount(account)
+      toast.success('Conta criada com sucesso!', {position: 'top-center'})
+      router.push('/')
+    } catch (error) {
+      console.log(error)
+      toast.error('Falha ao criar a conta, tente novamente mais tarde ou contate um administrador.')
+      throw new Error()
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className='py-12 h-dvh w-dvw flex items-center justify-center gap-5 bg-blue-50'>
       <div className='flex flex-col lg:flex-row items-center flex-wrap gap-6 max-w-[520px] bg-white p-10 rounded-r-lg border shadow-sm'>
@@ -94,7 +106,7 @@ export default function CreateAccount() {
           <p className='text-gray-500'>É rápido e fácil!</p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='grid grid-cols-6 gap-4'>
+          <form onSubmit={form.handleSubmit(onCreateAccount)} className='grid grid-cols-6 gap-4'>
             <FormField
               control={form.control}
               name='name'
@@ -166,8 +178,8 @@ export default function CreateAccount() {
                     <SelectValue placeholder='Ano' />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.from({ length: 11 }, (_, i) => {
-                      const year = new Date().getFullYear() - 10 + i
+                    {Array.from({ length: 112 }, (_, i) => {
+                      const year = new Date().getFullYear() - 111 + i
                       return (
                         <SelectItem key={year} value={year.toString()}>
                           {year}
@@ -182,7 +194,7 @@ export default function CreateAccount() {
               control={form.control}
               name='profession'
               render={({ field }) => (
-                <FormItem className='col-span-3'>
+                <FormItem className='col-span-6'>
                   <FormLabel>Cargo</FormLabel>
                   <FormControl>
                     <Input placeholder='Digite seu cargo' type='text' {...field} />
@@ -217,9 +229,23 @@ export default function CreateAccount() {
                 </FormItem>
               )}
             />
-            <Button variant='outline' type='button' className='col-span-6 bg-green-500 text-white'>
-              Enviar
-            </Button>
+            {isLoading ? (
+              <Button
+                variant='outline'
+                type='submit'
+                className='col-span-6 bg-green-500 hover:bg-green-400 hover:text-white text-white'
+              >
+                <Spinner />
+              </Button>
+            ) : (
+              <Button
+                variant='outline'
+                type='submit'
+                className='col-span-6 bg-green-500 hover:bg-green-400 hover:text-white text-white'
+              >
+                Enviar
+              </Button>
+            )}
           </form>
         </Form>
       </div>

@@ -28,6 +28,7 @@ const listAccounts = async () => {
 
 const createNewAccount = async (account: AccountDTO) => {
   try {
+    console.log(account)
     if (!account.name) {
       throw new BadRequestException('Nome é um campo obrigatório')
     }

@@ -10,5 +10,12 @@ export const createAccountSchema = z.object({
   }),
   profession: z.string().min(1, 'O cargo é obrigatório'),
   email: z.string().min(1, 'O email é obrigatório'),
-  password: z.string().min(2, 'A senha é obrigatório'),
+  password: z
+    .string()
+    .min(8, 'A senha deve ter pelo menos 8 caracteres')
+    .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
+    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
+    .regex(/[@$!%*?&,]/, 'A senha deve conter pelo menos um caractere especial (@, $, !, %, *, ?, &, ",")')
+    .refine((value) => !/\s/.test(value), 'A senha não pode conter espaços'),
 })
