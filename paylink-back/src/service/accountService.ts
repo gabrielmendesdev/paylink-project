@@ -1,6 +1,7 @@
 import AccountRepository from '../repositories/accountRepository'
 import { BadRequestException, NotFoundException } from '../exceptions/apiExceptions'
 import { AccountDTO } from '../dto/accountDto'
+import bcrypt from 'bcrypt'
 
 const findAccount = async (id: number) => {
   try {
@@ -11,6 +12,21 @@ const findAccount = async (id: number) => {
     }
 
     return existentPost
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+const loginAccount = async (email: string, password: string) => {
+  try {
+    const account = await AccountRepository.loginAccount(email, password)
+
+    if (!account) {
+      throw new NotFoundException('Usuário não encontrado')
+    }
+
+    return account
   } catch (error) {
     console.error(error)
     throw error
@@ -28,7 +44,6 @@ const listAccounts = async () => {
 
 const createNewAccount = async (account: AccountDTO) => {
   try {
-    console.log(account)
     if (!account.name) {
       throw new BadRequestException('Nome é um campo obrigatório')
     }
@@ -45,7 +60,14 @@ const createNewAccount = async (account: AccountDTO) => {
       throw new BadRequestException('Senha é um campo obrigatório')
     }
 
-    return await AccountRepository.createAccount(account)
+    const hashedPassword = await bcrypt.hash(account.password, 10)
+
+    const newAccount = {
+      ...account,
+      password: hashedPassword,
+    }
+
+    return await AccountRepository.createAccount(newAccount)
   } catch (error) {
     console.error(error)
     throw error
@@ -72,4 +94,5 @@ export default {
   listAccounts,
   createNewAccount,
   deleteAccount,
+  loginAccount,
 }

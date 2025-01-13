@@ -37,8 +37,18 @@ async function createAccount(req: Request, res: Response, next: NextFunction) {
   } 
 }
 
+async function loginAccount(req: Request, res: Response, next: NextFunction) {
+  try {
+    const Account = await accountService.loginAccount(req.body.email, req.body.password)
+    res.json(Account)
+  } catch (err) {
+    next(err)
+  }
+}
+
 export default {
   getAccount,
   findAccountById,
-  createAccount
+  createAccount,
+  loginAccount
 }
