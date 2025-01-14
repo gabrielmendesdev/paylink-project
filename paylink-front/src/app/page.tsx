@@ -49,7 +49,7 @@ export default function Home() {
 
       setError(null)
 
-      router.push('/agency')
+      router.push('/dashboard')
     } catch (error) {
       setError('Credenciais inválidas')
       console.error(error)
