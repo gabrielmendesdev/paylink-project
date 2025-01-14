@@ -1,12 +1,12 @@
- 
-import express from 'express';
-import accountController from '../controllers/accountController';
- 
-const routes = express.Router();
- 
-routes.get('/', accountController.getAccount);
-routes.post('/login', accountController.loginAccount);
-routes.get('/:id', accountController.findAccountById);
-routes.post('/', accountController.createAccount);
- 
-export {routes as default}
+import express from 'express'
+import accountController from '../controllers/accountController'
+import { auth } from '../middlewares/auth'
+
+const routes = express.Router()
+
+routes.get('/', auth, accountController.getAccount)
+routes.get('/:id', auth, accountController.findAccountById)
+routes.post('/login', accountController.loginAccount)
+routes.post('/register', accountController.createAccount)
+
+export { routes as default }

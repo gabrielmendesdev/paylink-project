@@ -1,12 +1,13 @@
 import { AccountDTO } from '../dto/accountDto'
 import { Account } from '../models/accountModel'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 async function findAccount(id: number): Promise<Account | null> {
   return await Account.findByPk(id)
 }
 
-async function loginAccount(email: string, password: string): Promise<Account | null> {
+async function loginAccount(email: string, password: string): Promise<{ user: Account; token: string } | null> {
   const account = await Account.findOne({ where: { email } })
 
   if (!account) {
@@ -21,8 +22,15 @@ async function loginAccount(email: string, password: string): Promise<Account | 
 
   const accountWithoutPassword = account.toJSON()
   delete accountWithoutPassword.password
+  
+  const token = jwt.sign({ account: accountWithoutPassword }, process.env.SECRET!, {
+    expiresIn: '2 days',
+  })
 
-  return accountWithoutPassword
+  return {
+    user: accountWithoutPassword,
+    token: token,
+  }
 }
 
 async function listAccounts(): Promise<Account[]> {

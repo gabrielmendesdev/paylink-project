@@ -19,3 +19,18 @@ export interface CreateAccount {
   email: string
   password: string
 }
+
+export interface LoginResponse {
+  user: {
+    id: number
+    name: string
+    surname: string
+    email: string
+    dateBirth: Date
+    profession: string
+    deletedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+  }
+  token: string
+}

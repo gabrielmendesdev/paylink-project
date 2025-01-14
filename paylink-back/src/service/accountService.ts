@@ -1,7 +1,7 @@
 import AccountRepository from '../repositories/accountRepository'
 import { BadRequestException, NotFoundException } from '../exceptions/apiExceptions'
 import { AccountDTO } from '../dto/accountDto'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 
 const findAccount = async (id: number) => {
   try {
@@ -44,6 +44,7 @@ const listAccounts = async () => {
 
 const createNewAccount = async (account: AccountDTO) => {
   try {
+    
     if (!account.name) {
       throw new BadRequestException('Nome é um campo obrigatório')
     }
@@ -60,12 +61,12 @@ const createNewAccount = async (account: AccountDTO) => {
       throw new BadRequestException('Senha é um campo obrigatório')
     }
 
-    const hashedPassword = await bcrypt.hash(account.password, 10)
+    const hashedPassword = await bcrypt.hash(account.password, 10);
 
     const newAccount = {
       ...account,
       password: hashedPassword,
-    }
+    };
 
     return await AccountRepository.createAccount(newAccount)
   } catch (error) {

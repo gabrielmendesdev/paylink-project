@@ -13,16 +13,18 @@ import { Input } from '@/components/ui/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify'
-import { getSession, signIn } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { loginSchema } from '@/utils/schema-form-rules'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 type LoginForm = z.infer<typeof loginSchema>
 
 export default function Home() {
   const router = useRouter()
+
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -34,32 +36,24 @@ export default function Home() {
 
   const onSubmit = async (data: LoginForm) => {
     const { password, email } = data
-    toast(
-      <div>
-        <p>🦄 So easy</p>
-        <p>usuário: {email}</p>
-        <p>senha: {password}</p>
-        <p>
-          (Utilize o react-toastfy para exibir notificações para o usuario, não deixe o usuário
-          realizar uma ação sem aparecer nada, obrigado!)
-        </p>
-      </div>
-    )
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+      if (result?.error) {
+        setError('Credenciais não encontradas')
+        return
+      }
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
+      setError(null)
 
-    if (result?.error) {
-      return
+      router.push('/agency')
+    } catch (error) {
+      setError('Credenciais inválidas')
+      console.error(error)
     }
-    const session = await getSession()
-    toast.success('Login efetuado com sucesso! :)', {
-      position: 'bottom-center',
-    })
-    console.log(session)
   }
 
   return (
@@ -93,6 +87,7 @@ export default function Home() {
                 </FormItem>
               )}
             />
+            {error && <p className='text-red-500 text-sm'>{error}</p>}
             <Link href={'#'} className='text-blue-500 text-[0.8em]'>
               Esqueci a senha
             </Link>
